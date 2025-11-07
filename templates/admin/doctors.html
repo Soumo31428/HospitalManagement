@@ -62,9 +62,12 @@
                                 <button class="btn btn-sm btn-warning" onclick="editDoctor({{ doctor.id }}, '{{ doctor.name }}', '{{ doctor.email }}', '{{ doctor.phone or '' }}', {{ doctor.department_id or 'null' }})">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <a href="{{ url_for('admin_delete_doctor', doctor_id=doctor.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                <form method="POST" action="{{ url_for('admin_delete_doctor', doctor_id=doctor.id) }}" style="display:inline;" onsubmit="return confirm('Are you sure?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% else %}
@@ -83,6 +86,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="POST" action="{{ url_for('admin_add_doctor') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="modal-header">
                     <h5 class="modal-title">Add New Doctor</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -127,6 +131,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="POST" id="editDoctorForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Doctor</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

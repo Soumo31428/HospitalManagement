@@ -57,9 +57,12 @@
                                 <button class="btn btn-sm btn-warning" onclick="editPatient({{ patient.id }}, '{{ patient.name }}', '{{ patient.email }}', '{{ patient.phone or '' }}', '{{ patient.address or '' }}')">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <a href="{{ url_for('admin_delete_patient', patient_id=patient.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                <form method="POST" action="{{ url_for('admin_delete_patient', patient_id=patient.id) }}" style="display:inline;" onsubmit="return confirm('Are you sure?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% else %}
@@ -78,6 +81,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="POST" id="editPatientForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Patient</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

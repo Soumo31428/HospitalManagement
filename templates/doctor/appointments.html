@@ -43,9 +43,12 @@
                                     <a href="{{ url_for('doctor_complete_appointment', appointment_id=appointment.id) }}" class="btn btn-sm btn-success">
                                         <i class="bi bi-check-circle"></i> Complete
                                     </a>
-                                    <a href="{{ url_for('doctor_cancel_appointment', appointment_id=appointment.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Cancel this appointment?')">
-                                        <i class="bi bi-x-circle"></i> Cancel
-                                    </a>
+                                    <form method="POST" action="{{ url_for('doctor_cancel_appointment', appointment_id=appointment.id) }}" style="display:inline;" onsubmit="return confirm('Cancel this appointment?')">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="bi bi-x-circle"></i> Cancel
+                                        </button>
+                                    </form>
                                 {% elif appointment.status == 'Completed' %}
                                     <span class="text-success"><i class="bi bi-check-circle"></i> Done</span>
                                 {% endif %}

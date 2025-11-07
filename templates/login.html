@@ -12,6 +12,7 @@
                         <i class="bi bi-box-arrow-in-right"></i> Login
                     </h3>
                     <form method="POST" action="{{ url_for('login') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
                             <input type="email" class="form-control" id="email" name="email" required>

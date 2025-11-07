@@ -34,11 +34,12 @@
                             <td>{{ appointment.reason or 'N/A' }}</td>
                             <td><span class="badge bg-warning">{{ appointment.status }}</span></td>
                             <td>
-                                <a href="{{ url_for('patient_cancel_appointment', appointment_id=appointment.id) }}" 
-                                   class="btn btn-sm btn-danger" 
-                                   onclick="return confirm('Are you sure you want to cancel this appointment?')">
-                                    <i class="bi bi-x-circle"></i> Cancel
-                                </a>
+                                <form method="POST" action="{{ url_for('patient_cancel_appointment', appointment_id=appointment.id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this appointment?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-x-circle"></i> Cancel
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% else %}

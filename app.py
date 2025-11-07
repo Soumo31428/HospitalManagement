@@ -1,14 +1,23 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_wtf.csrf import CSRFProtect
 from models import db, User, Department, Appointment, Treatment, DoctorAvailability
 from datetime import datetime, timedelta, date, time
 from functools import wraps
 import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SESSION_SECRET', 'dev-secret-key-change-in-production')
+
+if not os.environ.get('SESSION_SECRET'):
+    print("WARNING: SESSION_SECRET not set. Using development key. DO NOT USE IN PRODUCTION!")
+    app.config['SECRET_KEY'] = 'development-key-please-change'
+else:
+    app.config['SECRET_KEY'] = os.environ.get('SESSION_SECRET')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hospital.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['WTF_CSRF_ENABLED'] = True
 
+csrf = CSRFProtect(app)
 db.init_app(app)
 
 def login_required(f):
@@ -198,7 +207,7 @@ def admin_edit_doctor(doctor_id):
     flash('Doctor updated successfully.', 'success')
     return redirect(url_for('admin_doctors'))
 
-@app.route('/admin/doctor/delete/<int:doctor_id>')
+@app.route('/admin/doctor/delete/<int:doctor_id>', methods=['POST'])
 @role_required('Admin')
 def admin_delete_doctor(doctor_id):
     doctor = User.query.get_or_404(doctor_id)
@@ -240,7 +249,7 @@ def admin_edit_patient(patient_id):
     flash('Patient updated successfully.', 'success')
     return redirect(url_for('admin_patients'))
 
-@app.route('/admin/patient/delete/<int:patient_id>')
+@app.route('/admin/patient/delete/<int:patient_id>', methods=['POST'])
 @role_required('Admin')
 def admin_delete_patient(patient_id):
     patient = User.query.get_or_404(patient_id)
@@ -319,7 +328,7 @@ def doctor_complete_appointment(appointment_id):
     
     return render_template('doctor/complete_appointment.html', appointment=appointment)
 
-@app.route('/doctor/appointment/cancel/<int:appointment_id>')
+@app.route('/doctor/appointment/cancel/<int:appointment_id>', methods=['POST'])
 @role_required('Doctor')
 def doctor_cancel_appointment(appointment_id):
     appointment = Appointment.query.get_or_404(appointment_id)
@@ -440,6 +449,18 @@ def patient_book_appointment(doctor_id):
         appointment_date = datetime.strptime(date_str, '%Y-%m-%d').date()
         appointment_time = datetime.strptime(time_str, '%H:%M').time()
         
+        availability = DoctorAvailability.query.filter(
+            DoctorAvailability.doctor_id == doctor_id,
+            DoctorAvailability.date == appointment_date,
+            DoctorAvailability.start_time <= appointment_time,
+            DoctorAvailability.end_time >= appointment_time,
+            DoctorAvailability.is_available == True
+        ).first()
+        
+        if not availability:
+            flash('Doctor is not available at this time. Please choose a time within the available slots.', 'danger')
+            return redirect(url_for('patient_book_appointment', doctor_id=doctor_id))
+        
         existing = Appointment.query.filter_by(
             doctor_id=doctor_id,
             date=appointment_date,
@@ -498,7 +519,7 @@ def patient_appointments():
     
     return render_template('patient/appointments.html', upcoming=upcoming, past=past)
 
-@app.route('/patient/appointment/cancel/<int:appointment_id>')
+@app.route('/patient/appointment/cancel/<int:appointment_id>', methods=['POST'])
 @role_required('Patient')
 def patient_cancel_appointment(appointment_id):
     appointment = Appointment.query.get_or_404(appointment_id)
@@ -572,4 +593,7 @@ def init_db():
 
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    if debug_mode:
+        print("WARNING: Running in DEBUG mode. DO NOT USE IN PRODUCTION!")
+    app.run(host='0.0.0.0', port=5000, debug=debug_mode)
