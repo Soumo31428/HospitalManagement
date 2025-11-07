@@ -130,7 +130,7 @@ def admin_dashboard():
     total_doctors = User.query.filter_by(role='Doctor', is_active=True).count()
     total_patients = User.query.filter_by(role='Patient', is_active=True).count()
     total_appointments = Appointment.query.count()
-    pending_appointments = Appointment.query.filter_by(status='Booked').count()
+    pending_appointments = Appointment.query.filter_by(status='Pending').count()
     
     recent_appointments = Appointment.query.order_by(Appointment.created_at.desc()).limit(10).all()
     
@@ -264,6 +264,24 @@ def admin_appointments():
     appointments = Appointment.query.order_by(Appointment.date.desc(), Appointment.time.desc()).all()
     return render_template('admin/appointments.html', appointments=appointments)
 
+@app.route('/admin/appointment/approve/<int:appointment_id>', methods=['POST'])
+@role_required('Admin')
+def admin_approve_appointment(appointment_id):
+    appointment = Appointment.query.get_or_404(appointment_id)
+    appointment.status = 'Booked'
+    db.session.commit()
+    flash('Appointment approved successfully.', 'success')
+    return redirect(url_for('admin_appointments'))
+
+@app.route('/admin/appointment/cancel/<int:appointment_id>', methods=['POST'])
+@role_required('Admin')
+def admin_cancel_appointment(appointment_id):
+    appointment = Appointment.query.get_or_404(appointment_id)
+    appointment.status = 'Cancelled'
+    db.session.commit()
+    flash('Appointment cancelled successfully.', 'info')
+    return redirect(url_for('admin_appointments'))
+
 @app.route('/doctor/dashboard')
 @role_required('Doctor')
 def doctor_dashboard():
@@ -276,7 +294,7 @@ def doctor_dashboard():
         Appointment.doctor_id == doctor.id,
         Appointment.date >= today,
         Appointment.date <= week_later,
-        Appointment.status == 'Booked'
+        Appointment.status == 'Booked'  # Only show approved appointments to doctors
     ).order_by(Appointment.date, Appointment.time).all()
     
     patients = db.session.query(User).join(
@@ -408,7 +426,7 @@ def patient_dashboard():
     upcoming_appointments = Appointment.query.filter(
         Appointment.patient_id == patient.id,
         Appointment.date >= today,
-        Appointment.status == 'Booked'
+        Appointment.status.in_(['Booked', 'Pending'])  # Show both approved and pending appointments
     ).order_by(Appointment.date, Appointment.time).all()
     
     return render_template('patient/dashboard.html',
@@ -478,7 +496,7 @@ def patient_book_appointment(doctor_id):
             date=appointment_date,
             time=appointment_time,
             reason=reason,
-            status='Booked'
+            status='Pending'
         )
         
         db.session.add(appointment)
@@ -506,7 +524,7 @@ def patient_appointments():
     upcoming = Appointment.query.filter(
         Appointment.patient_id == patient.id,
         Appointment.date >= date.today(),
-        Appointment.status == 'Booked'
+        Appointment.status.in_(['Booked', 'Pending'])  # Show both approved and pending appointments
     ).order_by(Appointment.date, Appointment.time).all()
     
     past = Appointment.query.filter(

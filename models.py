@@ -44,7 +44,7 @@ class Appointment(db.Model):
     doctor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     time = db.Column(db.Time, nullable=False)
-    status = db.Column(db.String(20), default='Booked')
+    status = db.Column(db.String(20), default='Pending')
     reason = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
