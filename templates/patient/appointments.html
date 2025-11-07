@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}My Appointments - HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="bi bi-calendar-check"></i> My Appointments</h2>
+
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="bi bi-clock"></i> Upcoming Appointments</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Doctor</th>
+                            <th>Specialization</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in upcoming %}
+                        <tr>
+                            <td>{{ appointment.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ appointment.time.strftime('%H:%M') }}</td>
+                            <td>{{ appointment.doctor.name }}</td>
+                            <td>{{ appointment.doctor.department.name if appointment.doctor.department else 'General' }}</td>
+                            <td>{{ appointment.reason or 'N/A' }}</td>
+                            <td><span class="badge bg-warning">{{ appointment.status }}</span></td>
+                            <td>
+                                <a href="{{ url_for('patient_cancel_appointment', appointment_id=appointment.id) }}" 
+                                   class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center">No upcoming appointments</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="bi bi-archive"></i> Past Appointments</h5>
+        </div>
+        <div class="card-body">
+            <div class="accordion" id="pastAppointments">
+                {% for appointment in past %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#appointment{{ appointment.id }}">
+                            {{ appointment.date.strftime('%Y-%m-%d') }} at {{ appointment.time.strftime('%H:%M') }} - 
+                            Dr. {{ appointment.doctor.name }} - 
+                            <span class="badge {% if appointment.status == 'Completed' %}bg-success{% else %}bg-secondary{% endif %} ms-2">
+                                {{ appointment.status }}
+                            </span>
+                        </button>
+                    </h2>
+                    <div id="appointment{{ appointment.id }}" class="accordion-collapse collapse" data-bs-parent="#pastAppointments">
+                        <div class="accordion-body">
+                            <p><strong>Doctor:</strong> {{ appointment.doctor.name }}</p>
+                            <p><strong>Specialization:</strong> {{ appointment.doctor.department.name if appointment.doctor.department else 'General' }}</p>
+                            <p><strong>Reason:</strong> {{ appointment.reason or 'N/A' }}</p>
+                            {% if appointment.treatment and appointment.status == 'Completed' %}
+                                <hr>
+                                <h6>Treatment Details:</h6>
+                                <p><strong>Diagnosis:</strong> {{ appointment.treatment.diagnosis }}</p>
+                                <p><strong>Prescription:</strong> {{ appointment.treatment.prescription or 'None' }}</p>
+                                <p><strong>Notes:</strong> {{ appointment.treatment.notes or 'None' }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-center">No past appointments</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

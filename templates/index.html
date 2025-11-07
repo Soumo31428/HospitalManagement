@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-10">
+            <div class="text-center mb-5">
+                <h1 class="display-4"><i class="bi bi-hospital"></i> Welcome to Hospital Management System</h1>
+                <p class="lead text-muted">Efficient healthcare management for hospitals, doctors, and patients</p>
+            </div>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-person-gear display-4 text-primary mb-3"></i>
+                            <h5 class="card-title">Admin Portal</h5>
+                            <p class="card-text">Manage doctors, patients, and appointments efficiently.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-clipboard2-pulse display-4 text-success mb-3"></i>
+                            <h5 class="card-title">Doctor Portal</h5>
+                            <p class="card-text">View appointments, manage patient records and treatment history.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-person-heart display-4 text-info mb-3"></i>
+                            <h5 class="card-title">Patient Portal</h5>
+                            <p class="card-text">Book appointments, view medical history and prescriptions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-3">
+                    <i class="bi bi-box-arrow-in-right"></i> Login
+                </a>
+                <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-person-plus"></i> Register as Patient
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

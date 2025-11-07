@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Find Doctors - HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="bi bi-search"></i> Find Doctors</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('patient_doctors') }}">
+                <div class="row">
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" name="search" placeholder="Search by doctor name..." value="{{ request.args.get('search', '') }}">
+                    </div>
+                    <div class="col-md-5">
+                        <select class="form-select" name="department_id">
+                            <option value="">All Departments</option>
+                            {% for dept in departments %}
+                                <option value="{{ dept.id }}" {% if request.args.get('department_id') == dept.id|string %}selected{% endif %}>
+                                    {{ dept.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for doctor in doctors %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ doctor.name }}</h5>
+                    <p class="mb-2">
+                        <i class="bi bi-briefcase"></i> 
+                        <strong>Specialization:</strong> {{ doctor.department.name if doctor.department else 'General Medicine' }}
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-envelope"></i> {{ doctor.email }}
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-telephone"></i> {{ doctor.phone or 'N/A' }}
+                    </p>
+                    <a href="{{ url_for('patient_book_appointment', doctor_id=doctor.id) }}" class="btn btn-success">
+                        <i class="bi bi-calendar-plus"></i> Book Appointment
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                No doctors found matching your criteria
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

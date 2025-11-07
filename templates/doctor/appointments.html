@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}My Appointments - HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="bi bi-calendar-check"></i> My Appointments</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Patient</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in appointments %}
+                        <tr>
+                            <td>{{ appointment.id }}</td>
+                            <td>{{ appointment.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ appointment.time.strftime('%H:%M') }}</td>
+                            <td>{{ appointment.patient.name }}</td>
+                            <td>{{ appointment.reason or 'N/A' }}</td>
+                            <td>
+                                {% if appointment.status == 'Booked' %}
+                                    <span class="badge bg-warning">{{ appointment.status }}</span>
+                                {% elif appointment.status == 'Completed' %}
+                                    <span class="badge bg-success">{{ appointment.status }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ appointment.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if appointment.status == 'Booked' %}
+                                    <a href="{{ url_for('doctor_complete_appointment', appointment_id=appointment.id) }}" class="btn btn-sm btn-success">
+                                        <i class="bi bi-check-circle"></i> Complete
+                                    </a>
+                                    <a href="{{ url_for('doctor_cancel_appointment', appointment_id=appointment.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Cancel this appointment?')">
+                                        <i class="bi bi-x-circle"></i> Cancel
+                                    </a>
+                                {% elif appointment.status == 'Completed' %}
+                                    <span class="text-success"><i class="bi bi-check-circle"></i> Done</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center">No appointments found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

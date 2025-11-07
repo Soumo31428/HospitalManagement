@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Book Appointment - HMS{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="bi bi-calendar-plus"></i> Book Appointment</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Doctor Information</h5>
+                        <p><strong>Name:</strong> {{ doctor.name }}</p>
+                        <p><strong>Specialization:</strong> {{ doctor.department.name if doctor.department else 'General Medicine' }}</p>
+                        <p><strong>Email:</strong> {{ doctor.email }}</p>
+                    </div>
+
+                    {% if availabilities %}
+                    <div class="alert alert-info">
+                        <strong>Doctor's Availability (Next 7 Days):</strong>
+                        <ul class="mb-0 mt-2">
+                            {% for avail in availabilities %}
+                            <li>{{ avail.date.strftime('%Y-%m-%d') }}: {{ avail.start_time.strftime('%H:%M') }} - {{ avail.end_time.strftime('%H:%M') }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        This doctor has not set availability for the next 7 days. You can still book an appointment.
+                    </div>
+                    {% endif %}
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Date *</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="time" class="form-label">Time *</label>
+                            <input type="time" class="form-control" id="time" name="time" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Reason for Visit</label>
+                            <textarea class="form-control" id="reason" name="reason" rows="3"></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Book Appointment
+                            </button>
+                            <a href="{{ url_for('patient_doctors') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

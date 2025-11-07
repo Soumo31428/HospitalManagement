@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Dashboard - HMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="bi bi-person-heart"></i> Patient Dashboard</h2>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-hospital"></i> Available Departments</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for dept in departments %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ dept.name }}</h5>
+                                    <p class="card-text text-muted">{{ dept.description }}</p>
+                                    <a href="{{ url_for('patient_doctors', department_id=dept.id) }}" class="btn btn-sm btn-primary">
+                                        View Doctors
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-people"></i> Available Doctors (Next 7 Days)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for doctor in available_doctors[:6] %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>{{ doctor.name }}</h6>
+                                    <p class="mb-1 text-muted">
+                                        <i class="bi bi-briefcase"></i> 
+                                        {{ doctor.department.name if doctor.department else 'General' }}
+                                    </p>
+                                    <p class="mb-2 text-muted">
+                                        <i class="bi bi-envelope"></i> {{ doctor.email }}
+                                    </p>
+                                    <a href="{{ url_for('patient_book_appointment', doctor_id=doctor.id) }}" class="btn btn-sm btn-success">
+                                        <i class="bi bi-calendar-plus"></i> Book Appointment
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center">
+                        <a href="{{ url_for('patient_doctors') }}" class="btn btn-primary">View All Doctors</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Upcoming Appointments</h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_appointments %}
+                        <ul class="list-group">
+                            {% for appointment in upcoming_appointments %}
+                            <li class="list-group-item">
+                                <strong>{{ appointment.doctor.name }}</strong>
+                                <br>
+                                <small class="text-muted">
+                                    {{ appointment.date.strftime('%Y-%m-%d') }} at {{ appointment.time.strftime('%H:%M') }}
+                                </small>
+                                <br>
+                                <span class="badge bg-warning mt-1">{{ appointment.status }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('patient_appointments') }}" class="btn btn-sm btn-primary">View All</a>
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted">No upcoming appointments</p>
+                        <div class="text-center">
+                            <a href="{{ url_for('patient_doctors') }}" class="btn btn-sm btn-primary">Book Now</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
