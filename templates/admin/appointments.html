@@ -47,9 +47,11 @@
                             <td>
                                 {% if appointment.status == 'Pending' %}
                                     <form method="POST" action="{{ url_for('admin_approve_appointment', appointment_id=appointment.id) }}" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                         <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Approve this appointment?')">Approve</button>
                                     </form>
                                     <form method="POST" action="{{ url_for('admin_cancel_appointment', appointment_id=appointment.id) }}" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this appointment?')">Cancel</button>
                                     </form>
                                 {% else %}
